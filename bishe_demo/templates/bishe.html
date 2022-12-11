@@ -1,0 +1,13 @@
+<h1>{{ title }}</h1>
+
+<label>
+    选择探针图片
+    <select name="probe">
+        {% for name in names_list %}
+        <option id="name" value="{{name}}">{{name}}</option>
+        {% endfor %}
+    </select>
+</label>
+
+<a href="{% url 'reid' %}" class='btn btn-lg'>再识别</a>
+

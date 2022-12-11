@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--<link rel="icon" href="../../favicon.ico">-->
+
+    <title>Demo by Chen Haobo</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!--<link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">-->
+
+    <!-- Custom styles for this template -->
+    <!--<link href="jumbotron.css" rel="stylesheet">-->
+    <link href="/static/bootstrap/css/jumbotron.css" rel="stylesheet">
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!--<script src="../../assets/js/ie-emulation-modes-warning.js"></script>-->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="/static/bootstrap/js/jquery.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+
+    <style>
+      .style1 {
+        font-size: 20px;
+        font-family: "微软雅黑";
+        color: grey;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div style="padding-top:0px;">
+      <div class="container">
+        <div style="color:grey; width:60%; box-sizing:border-box; float:left; ">
+          <p style="height:40px; line-height:40px; font-size: 20px;">基于多视角感知学习的车辆再识别技术研究 演示系统</p>
+        </div>
+        <div style="color:grey; width:25%; box-sizing:border-box; float:left">
+          <h4>学生：陈豪博 SY2006129
+          </h4>
+        </div>
+        <div style="color:grey; width:15%; box-sizing:border-box; float:left">
+          <h4>导师：盛浩 教授</h4>
+        </div>
+      </div>
+    </div>
+
+    <div>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <table>
+          <tr>
+            <td>
+              
+              <table><tr>
+                <td style="width:420px"><label style="text-align:center; display:block; font-size:20px">输入信息</label></td>
+              </tr></table>
+
+              <!-- 用户选择探针图片 -->
+              <div style="padding-top:20px;">
+              <table><tr>
+                <td style="width:140px"><label style="text-align:right; display:block;">选择探针图片：</label></td>
+                <td><select class="form-control" style="width:280px" id="query_name_select">
+                  {% for name in query_names_list %}
+                  <option id="name" value="{{name}}">{{name}}</option>
+                  {% endfor %}
+                </select></td>
+              </tr></table>
+              </div>
+              
+              <!-- 用户选择车辆特征 -->
+              <div style="padding-top:20px;">
+              <table><tr>
+                <td style="width:140px"><label style="text-align:right; display:block;">选择车辆特征：</label></td>
+                <td><select class="form-control" style="width:280px" id="feat_name_select">
+                  <option id="feat_name_1" value="1">基于多视角感知的划分聚合损失</option>
+                  <option id="feat_name_2" value="2">基于交叉注意力的视角相关特征提取</option>
+                  <option id="feat_name_3" value="3">多视角感知学习整体框架（含共现视角强调）</option>
+                </select></td>
+              </tr></table>
+              </div>
+
+              <!-- 用户选择检索结果的topk个 -->
+              <div style="padding-top:20px;">
+              <table><tr>
+                <td style="width:140px"><label style="text-align:right; display:block;">检索输出图片数量：</label></td>
+                <td><select class="form-control" style="width:280px" id="topk_select">
+                  <option id="topk_5" value="5">5</option>
+                  <option id="topk_10" value="10">10</option>
+                  <option id="topk_20" value="20">20</option>
+                  <option id="topk_50" value="50">50</option>
+                    <option id="topk_50" value="100">100</option>
+                </select></td>
+              </tr></table>
+              </div>
+            </td>
+            
+            <!-- 探针示例图片 -->
+            
+            <td>
+              <div style="padding-left:200px;">
+                <label>探针图片图示：</label>
+                <img id="query_image" src="/static/image_query/0659_c009_00074280_0.jpg" width="180" height="180"/>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <div style="padding-top:20px;"><center><button class="btn btn-primary" onclick="reid()" style="float:center;width:200px;">再识别</button></center></div>
+      </div>
+    </div>
+    
+    <!-- 根据下拉框实时更新query图片 -->
+    <script type="text/javascript">
+      $(function() {
+        $('#query_name_select').change(function(e){ 
+          fillreport();
+        }) 
+      });
+      function fillreport(){
+        var query_name = $("#query_name_select  option:selected").val();
+        var img = document.getElementById("query_image");
+        img.src = "/static/image_query/" + query_name;
+      }
+    </script>
+
+    <!-- 按下再识别按钮输出检索结果 -->
+    <script type="text/javascript">
+      function reid(){
+        // 更新数据集再识别结果
+        var feat_name = $("#feat_name_select  option:selected").val();
+        if (feat_name == "1") {
+          document.getElementById("map_val").innerHTML="<center>81.4%</center>";
+          document.getElementById("cmc1_val").innerHTML="<center>96.7%</center>";
+          document.getElementById("cmc5_val").innerHTML="<center>98.8%</center>";
+        } else if (feat_name == "2") {
+          document.getElementById("map_val").innerHTML="<center>79.5%</center>";
+          document.getElementById("cmc1_val").innerHTML="<center>96.4%</center>";
+          document.getElementById("cmc5_val").innerHTML="<center>98.4%</center>";
+        } else if (feat_name == "3") {
+          document.getElementById("map_val").innerHTML="<center>83.4%</center>";
+          document.getElementById("cmc1_val").innerHTML="<center>97.6%</center>";
+          document.getElementById("cmc5_val").innerHTML="<center>99.1%</center>";
+        }
+
+        var query_name = $("#query_name_select  option:selected").val();
+        var feat_name = $("#feat_name_select  option:selected").val();
+        var topk = $("#topk_select  option:selected").val();
+        $.ajax({
+          type: "POST",
+          url: "/reid/",
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            query_name: query_name,
+            feat_name: feat_name,
+            topk: topk,
+          },
+          success: function(data) {
+            $('#reid_results').empty();   //清空标签内数据
+            $('#reid_results').append("<table border='1'>");
+            var cnt = 0;
+            var is_right = "对";
+            $(data).each(function (i, v) {  //添加标签内新的数据
+              // 计算对错标记
+              var id1 = query_name.split('_')[0];
+              var id2 = v.split('_')[0];
+              if (id1 == id2) {
+                is_right = '<img src="/static/right_icon.png" height="25" width="25" />';
+              } else {
+                is_right = '<img src="/static/wrong_icon.png" height="19" width="19" />';
+              }
+              if (cnt % 5 == 0) $('#reid_results').append("<tr>");
+              cnt += 1;
+              $('#reid_results').append("<td><table><tr><td style='font-size:18px;'><center>第" + 
+                cnt + 
+                "张</center></td></tr> <tr> <td><img src='/static/image_test/" + 
+                v + 
+                "' height='150' width='150' /> </td> </tr> <tr width='200'><td><center>" +
+                is_right + "</center></td></tr> </table> </td>");
+              if (cnt % 5 == 0) $('#reid_results').append("</tr><hr/>");
+            });
+            $('#reid_results').append("</table>");
+          }
+        });
+      }
+    </script>
+
+    <!-- 展示再识别正确率 -->
+    <div style="font-size:20px"><center>VeRi-776数据集车辆再识别正确率</center></div>
+    <center><table border="1">
+      <tr>
+        <th style="width:100px;font-size:20px;"><center>mAP</center></th>
+        <th style="width:100px;font-size:20px;"><center>CMC@1</center></th>
+        <th style="width:100px;font-size:20px;"><center>CMC@5</center></th>
+      </tr>
+      <tr>
+        <td style="width:100px;font-size:20px;" id="map_val"><center>0.0%</center></td>
+        <td style="width:100px;font-size:20px;" id="cmc1_val"><center>0.0%</center></td>
+        <td style="width:100px;font-size:20px;" id="cmc5_val"><center>0.0%</center></td>
+      </tr>
+    </table></center>
+    '\n'
+
+    <!-- 展示检索结果 -->
+    <center><div id="reid_results" class="container"> </div> </center>
+
+    <html>
+<body>
+
+
+
+</body>
+</html>
+  </body>
+</html>
